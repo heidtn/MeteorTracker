@@ -1,0 +1,4 @@
+argparse==1.2.1
+numpy==1.10.2
+pyfits==3.3
+wsgiref==0.1.2

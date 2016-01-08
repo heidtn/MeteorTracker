@@ -1,0 +1,16 @@
+<html>
+  <link type="text/css" rel="stylesheet" href="style.css"/>
+  <head>
+    <title>Video Streaming Demonstration</title>
+  </head>
+  <body>
+    <h1>Latest Image</h1>
+    <img src="{{ url_for('video_feed') }}">
+
+    <h1>Captured Events</h1>
+    {% for pic in eventpics %}  
+    <img src="{{ url_for('static', filename = 'eventpics/' + pic) }}" width=180 height=180/>  
+	{% endfor %}  
+  </body>
+</html>
+

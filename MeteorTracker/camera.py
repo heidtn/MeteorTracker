@@ -1,7 +1,7 @@
 import os
 import cv2
 try:
-	import picam
+	import picamera
 except Exception:
 	pass
 import io

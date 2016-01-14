@@ -69,8 +69,7 @@ def findMotionAnomaly(previmg, curimg):
 	thresh = cv2.dilate(thresh, None, iterations=2)
 
 	keypts = detector.detect(thresh)
-	print len(keypts)
 
 	im_with_keypoints = cv2.drawKeypoints(thresh, keypts, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 	
-	return im_with_keypoints
+	return (keypts, im_with_keypoints)

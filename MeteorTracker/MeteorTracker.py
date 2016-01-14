@@ -4,6 +4,7 @@ import cv2
 import time
 import camera
 import find_events
+import datetime as dt
 
 #technically thread safe, but a lazy solution
 sharedDict = dict()
@@ -31,8 +32,13 @@ class Tracker(threading.Thread):
 		while True:
 			curImg = self.cam.getFrame()
 			prevImg = self.cam.getPrevFrame()
-			keypts = find_events.findMotionAnomaly(prevImg, curImg)
-			self.gobal_dict['lastestimage'] = keypts
+			keypts, im = find_events.findMotionAnomaly(prevImg, curImg)
+			self.gobal_dict['lastestimage'] = im
+
+			if len(keypts) > 0:
+				filename = dt.datetime.now().isoformat() + '.jpg'
+				cv2.imwrite(filename, curImg)
+
 	def getLatestImg(self):
 		print "returning image"
 		return self.gobal_dict['lastestimage']

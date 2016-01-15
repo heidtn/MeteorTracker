@@ -34,10 +34,13 @@ class Tracker(threading.Thread):
 			prevImg = self.cam.getPrevFrame()
 			keypts, im = find_events.findMotionAnomaly(prevImg, curImg)
 			self.gobal_dict['lastestimage'] = im
-
+			print "new image loaded"
+			
+			filename = dt.datetime.now().isoformat()	
 			if len(keypts) > 0:
-				filename = dt.datetime.now().isoformat() + '.jpg'
-				cv2.imwrite(filename, curImg)
+				filename += '_event'
+			filename += '.jpg'
+			cv2.imwrite(filename, curImg)
 
 	def getLatestImg(self):
 		print "returning image"

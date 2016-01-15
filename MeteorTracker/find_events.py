@@ -14,6 +14,11 @@ CHANGELOG:
 	- 
 """
 
+def draw_keypoints(vis, keypoints, color = (0, 255, 255)):
+    for kp in keypoints:
+            x, y = kp.pt
+            cv2.circle(vis, (int(x), int(y)), 2, color)
+
 def getBlobDetector():
 	# Setup SimpleBlobDetector parameters.
 	params = cv2.SimpleBlobDetector_Params()
@@ -70,6 +75,6 @@ def findMotionAnomaly(previmg, curimg):
 
 	keypts = detector.detect(thresh)
 
-	im_with_keypoints = cv2.drawKeypoints(thresh, keypts, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+	im_with_keypoints = draw_keypoints(thresh, keypts, (0,0,255))
 	
 	return (keypts, im_with_keypoints)

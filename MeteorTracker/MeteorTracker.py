@@ -1,4 +1,3 @@
-import threading
 import server
 import cv2
 import time
@@ -7,27 +6,39 @@ import find_events
 import datetime as dt
 
 import ConfigParser
+import save_event
 
-class Tracker(threading.Thread):
+
+"""
+@author(s): Nathan Heidt
+
+This is the primary program for detecting and logging Meteors.  Running python MeteorTracker.py is sufficient.  
+Make sure the parameters specified in the config.ini file are correct.
+
+TODO:
+    - 
+
+CHANGELOG:
+    - 
+"""
+
+class Tracker():
 	def __init__(self, source = None):
 		self.cam = camera.camera(source)
 		self.config = ConfigParser.ConfigParser()
+		self.config.read('config.ini')
+		self.eventLogger = save_event.EventLogger()
 
-				
+
 	def run(self):
 		while True:
 			curImg = self.cam.getFrame()
 			prevImg = self.cam.getPrevFrame()
 			keypts, im = find_events.findMotionAnomaly(prevImg, curImg)
-
-			print "new image loaded"
 			
 			#we have found an anomaly
 			if len(keypts) > 0:
-				filename = dt.datetime.now().isoformat()	
-				filename += '_event'
-				filename += '.jpg'
-				cv2.imwrite(filename, curImg)
+				self.eventLogger.addEvent(curImg, prevImg)
 
 	def getLatestImg(self):
 		print "returning image"

@@ -4,7 +4,7 @@ import numpy as np
 
 
 """
-@author: Nathan Heidt
+@author(s): Nathan Heidt
 
 This contains the functions responsible for detecting meteor events
 

@@ -6,6 +6,7 @@ import time
 import MeteorTracker
 
 """
+This is currently garbage and doesn't work
 (Based on the gist by Igor Maculan - n3wtron@gmail.com).  Serves most current image for debug and general view.
 """
 

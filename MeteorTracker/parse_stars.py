@@ -6,7 +6,7 @@ import random
 import math
 
 """
-@author: Nathan Heidt
+@author(s): Nathan Heidt
 
 This contains the python classes and functions responsible for star matching between a known position of stars for a given location and a photograph of stars for the same or similar locations
 

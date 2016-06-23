@@ -1,5 +1,6 @@
 import os
 import cv2
+#we import like this in case we're not on a raspberry pi and the package isn't available
 try:
 	import picamera
 	import picamera.array
@@ -9,6 +10,18 @@ import io
 import numpy as np
 import time
 from fractions import Fraction
+
+"""
+@author(s): Nathan Heidt
+
+This creates straming image instances using a usb camera, pi camera, or even a video file.
+
+TODO:
+    - 
+
+CHANGELOG:
+    - 
+"""
 
 class camera:
 	class __camera:

@@ -17,6 +17,7 @@ class camera:
 			self.prev_frame = None
 			self.cur_frame = None
 			oper_sys = os.uname()[-1]
+			#if a rpi
 			if 'arm' in oper_sys and source is None:
 				self.camera_type = 'picam'
 			elif source is None:

@@ -40,7 +40,7 @@ def getBlobDetector():
 	params.filterByConvexity = False
 	params.minConvexity = 0.0
 	 
-	# Filter by Inertia
+	# Filter by Inertia (ratio of widest to thinnest point)
 	params.filterByInertia = True
 	params.maxInertiaRatio = .5
 	params.minInertiaRatio = 0
@@ -63,6 +63,7 @@ def findMotionAnomaly(previmg, curimg):
 	gray1 = cv2.cvtColor(previmg, cv2.COLOR_BGR2GRAY)
 	gray2 = cv2.cvtColor(curimg, cv2.COLOR_BGR2GRAY)
 
+	#gaussian to filter out noise
 	gray1 = cv2.GaussianBlur(gray1, (3, 3), 0)
 	gray2 = cv2.GaussianBlur(gray2, (3, 3), 0)
 

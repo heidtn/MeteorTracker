@@ -76,7 +76,7 @@ def findMotionAnomaly(previmg, curimg):
 
 	keypts = detector.detect(thresh)
 
-	im_with_keypoints = curimg
+	im_with_keypoints = curimg.copy()
 	draw_keypoints(im_with_keypoints, keypts, (0,0,255))
 
 	

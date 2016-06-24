@@ -19,9 +19,9 @@ CHANGELOG:
 
 
 class EventLogger():
-	def __init__(self):
+	def __init__(self, configPath='config.ini'):
 		self.config = ConfigParser.ConfigParser()
-		self.config.read('config.ini')
+		self.config.read(configPath)
 
 		#get working variables from config file
 		self.localDbName = self.config.get('Database', 'Local', 0)
@@ -44,6 +44,9 @@ class EventLogger():
 		lat = self.config.get('Location', 'Latitude', 0)
 		lon = self.config.get('Location', 'Longitude', 0)
 		bear = self.config.get('Location', 'Bearing', 0)
+		roll = self.config.get('Location', 'Roll', 0)
+		pitch = self.config.get('Location', 'Pitch', 0)
+		yaw = self.config.get('Location', 'Yaw', 0)
 
 		intrin = self.config.get('Camera', 'IntrinsicMat', 0)
 		dist = self.config.get('Camera', 'DistortionCoeff', 0)
@@ -55,10 +58,10 @@ class EventLogger():
 
 
 
-	def uploadToRemote(self, curimg, previmg, date, lat, lon, bear, intrin, dist):
+	def uploadToRemote(self, curimg, previmg, date, lat, lon, bear, r, p, y, intrin, dist):
 		pass
 
-	def uploadToLocal(self, curimg, previmg, date, lat, lon, bear, intrin, dist):
+	def uploadToLocal(self, curimg, previmg, date, lat, lon, bear, r, p, y, intrin, dist):
 		#save the images locally, we don't want them in the database so they're easier to work with
 		filenamecur = filenameprev = self.localImageLocation + date	
 		filenamecur += '_current'
@@ -66,16 +69,16 @@ class EventLogger():
 		filenamecur += '.jpg'
 		filenameprev += '.jpg'
 
-		cv2.imwrite(filenamecur, curImg)
-		cv2.imwrite(filenameprev, prevImg)
+		cv2.imwrite(filenamecur, curimg)
+		cv2.imwrite(filenameprev, previmg)
 
-		self.conn.execute('insert into %s (curimg, previmg, date, latitude, longitude, bearing, IntrinsicMat, DistortionCoeff) values (%s,%s,%s,%s,%s,%s,%s,%s)' 
-									% (self.localDbName,curimg, previmg, date, latitude, longitude, bearing, IntrinsicMat, DistortionCoeff))
+		self.conn.execute("insert into %s (curimg, previmg, date, latitude, longitude, bearing, roll, pitch, yaw, IntrinsicMat, DistortionCoeff) values ('%s','%s','%s','%s','%s','%s','%s','%s')" \
+										% (self.localDbTableName, filenamecur, filenameprev, date, lat, lon, bear, r, p, y, intrin, dist))
 		self.conn.commit()
 
 
 	def checkLocalDb(self):
-		sql = 'create table if not exists ' + self.localDbTableName + ' (curimg, previmg, date, latitude, longitude, bearing, IntrinsicMat, DistortionCoeff)'
+		sql = 'create table if not exists ' + self.localDbTableName + ' (curimg, previmg, date, latitude, longitude, bearing, roll, pitch, yaw, IntrinsicMat, DistortionCoeff)'
 		c = self.conn.cursor()
 		c.execute(sql)
 		self.conn.commit()

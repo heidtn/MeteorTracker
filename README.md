@@ -7,7 +7,9 @@ The primary goal is to find fallen meteors for scientific and hobbyist purposes 
 
 
 # Setup
-You'll need a computer with python (2.7 as of now) and opencv.  You'll also need an openCV compatible camera.  Lower light cameras are better.  The camera should be oriented orthogonally to the ground (i.e. up).  Run MeteorTracker.py and you're good to go.
+You'll need a computer with python (2.7 as of now) and opencv.  You'll also need an openCV compatible camera.  Lower light cameras are better.  The camera should be oriented orthogonally to the ground (i.e. up).  Run setup.py first.  Then run MeteorTracker.py and you're good to go.
+
+
 
 # Project Elements
 - Camera Calibration
@@ -24,10 +26,11 @@ Here is the current layout of the file structure:
 - camera.py - this generates an instance of video.  It can be a webcam, or if given a source, a video file (for testing)
 - find_events.py - this compares two images and detects potential meteors.  It is a simple motion detector, that filters motion blobs by they're size and elongation.  It works in a basic sense, but will need more test data to refine
 - MeteorTracker.py - this runs the show.  It instantiates a camera and collects images looking for meteor events.  
-- server.py - a poor attempt at getting a live interactive server to work with the MeteorTracker.py code.  It needs to be redone at some point.
 - vid_writer.py - intended for debugging purposes, this takes a number of frames and outputs a .avi file.
 
-- parse_stars.py - this is a work in progress.  The idea is that the camera can find its orientation (and in the future, perhaps approximate location), based on its current view of the stars.
+NOT WORKING:
+- parse_stars.py - this is a work in progress.  The idea is that the camera can find its orientation (and in the future, perhaps approximate location), based on its current view of the stars and the current time.
+- server.py - a poor attempt at getting a live interactive server to work with the MeteorTracker.py code.  It needs to be redone at some point.
 
 
 # Time line

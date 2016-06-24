@@ -34,6 +34,8 @@ class Tracker():
 		while True:
 			curImg = self.cam.getFrame()
 			prevImg = self.cam.getPrevFrame()
+
+			#detect number of anomalies (keypts) and highlight them in im
 			keypts, im = find_events.findMotionAnomaly(prevImg, curImg)
 			
 			#we have found an anomaly

@@ -75,11 +75,11 @@ class Camera:
 
 	instance = None
 	def __init__(self, source=None):
-		if not camera.instance:
-			camera.instance = camera.__camera(source)
+		if not Camera.instance:
+			Camera.instance = Camera.__camera(source)
 		else:
 			#this doesn't really even matter...
-			camera.instance.source = source
+			Camera.instance.source = source
 
 	def __getattr__(self, name):
 		return getattr(self.instance, name)

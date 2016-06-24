@@ -23,7 +23,7 @@ CHANGELOG:
     - 
 """
 
-class camera:
+class Camera:
 	class __camera:
 		def __init__(self, source=None):
 			self.camera_settings = dict()

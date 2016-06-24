@@ -1,12 +1,12 @@
 import server
 import cv2
 import time
-import camera
-import find_events
+import Camera
+import FindEvents
 import datetime as dt
 
 import ConfigParser
-import save_event
+import SaveEvent
 
 
 """
@@ -24,10 +24,10 @@ CHANGELOG:
 
 class Tracker():
 	def __init__(self, source = None):
-		self.cam = camera.camera(source)
+		self.cam = Camera.Camera(source)
 		self.config = ConfigParser.ConfigParser()
 		self.config.read('config.ini')
-		self.eventLogger = save_event.EventLogger()
+		self.eventLogger = SaveEvent.EventLogger()
 
 
 	def run(self):
@@ -36,7 +36,7 @@ class Tracker():
 			prevImg = self.cam.getPrevFrame()
 
 			#detect number of anomalies (keypts) and highlight them in im
-			keypts, im = find_events.findMotionAnomaly(prevImg, curImg)
+			keypts, im = FindEvents.findMotionAnomaly(prevImg, curImg)
 			
 			#we have found an anomaly
 			if len(keypts) > 0:

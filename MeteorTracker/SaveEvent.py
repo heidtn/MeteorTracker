@@ -73,7 +73,7 @@ class EventLogger():
 		cv2.imwrite(filenameprev, previmg)
 
 		self.conn.execute("insert into %s (curimg, previmg, date, latitude, longitude, bearing, roll, pitch, yaw, IntrinsicMat, DistortionCoeff) values ('%s','%s','%s','%s','%s','%s','%s','%s')" \
-										% (self.localDbTableName, filenamecur, filenameprev, date, lat, lon, bear, r, p, y, intrin, dist))
+										% (self.localDbTableName, filenamecur, filenameprev, date, float(lat), float(lon), float(bear), float(r), float(p), float(y), intrin, dist))
 		self.conn.commit()
 
 

@@ -9,7 +9,9 @@ import numpy as np
 This contains the functions responsible for detecting meteor events
 
 TODO:
-	- 
+	- Check for airplanes/satellites/non meteoric anomalies
+	- Normalize lighting
+	- Check for star shifts to ensure these don't create false positives
 CHANGELOG:
 	- 
 """

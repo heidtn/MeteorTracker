@@ -71,9 +71,9 @@ def find_motion_anomaly(previous_image, current_image):
 
     # dilate the thresholded image to fill in holes, then find contours
     # on thresholded image
-    thresh = cv2.dilate(thresh, None, iterations=2)
+    dilated_image = cv2.dilate(thresh, None, iterations=2)
 
-    keypoints = detector.detect(thresh)
+    keypoints = detector.detect(dilated_image)
 
     im_with_keypoints = current_image.copy()
     draw_keypoints(im_with_keypoints, keypoints, (0, 0, 255))

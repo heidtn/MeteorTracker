@@ -62,10 +62,11 @@ class Camera(object):
                 ret, frame = self.camera.read()
             elif self.camera_type == CameraType.custom:
                 ret, frame = self.camera.read()
-                self.prev_frame = self.current_frame
-                self.current_frame = frame
             else:
                 raise RuntimeError('Cannot get frame: Unknown camera type.')
+
+            self.previous_frame = self.current_frame
+            self.current_frame = frame
             return frame
 
         def get_previous_frame(self):
@@ -81,7 +82,7 @@ class Camera(object):
 
     def __init__(self, source=None):
         if not Camera.instance:
-            Camera.instance = Camera._camera(source)
+            Camera.instance = Camera._Camera(source)
         else:
             # this doesn't really even matter...
             Camera.instance.source = source

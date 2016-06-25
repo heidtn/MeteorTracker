@@ -1,4 +1,5 @@
 import configparser
+
 """
 @author(s): Nathan Heidt, Jean Nassar
 
@@ -8,8 +9,8 @@ This initializes necessary directories and files.
 
 import os
 
-db_dir = 'Database'
-im_dir = 'Database/images'
+db_dir = 'database'
+im_dir = 'database/images'
 
 
 def initialize(config_path='config.ini'):
@@ -26,10 +27,11 @@ def initialize(config_path='config.ini'):
     db_path = os.path.abspath(db_dir)
     im_path = os.path.abspath(im_dir)
 
-    config.set('Database', 'Local', db_path + '/local.db')
-    config.set('Database', 'LocalImages', im_path + '/')
+    config['Database']['Local'] = db_path + '/local.db'
+    config['Database']['LocalImages'] = im_path + '/'
 
-    with open(config_path, 'wb') as configfile:
+    print("writing to config file")
+    with open(config_path, 'w') as configfile:
         config.write(configfile)
 
 

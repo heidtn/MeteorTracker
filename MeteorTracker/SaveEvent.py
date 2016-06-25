@@ -4,6 +4,8 @@ import datetime
 
 import cv2
 
+import os
+
 """
 @author(s): Nathan Heidt
 
@@ -41,6 +43,7 @@ class EventLogger():
 
 	def addEvent(self, curimg, previmg):
 		date = datetime.datetime.utcnow().isoformat()
+		#get settings from file
 		lat = self.config.get('Location', 'Latitude', 0)
 		lon = self.config.get('Location', 'Longitude', 0)
 		bear = self.config.get('Location', 'Bearing', 0)
@@ -57,7 +60,6 @@ class EventLogger():
 			pass
 
 
-
 	def uploadToRemote(self, curimg, previmg, date, lat, lon, bear, r, p, y, intrin, dist):
 		pass
 
@@ -72,8 +74,9 @@ class EventLogger():
 		cv2.imwrite(filenamecur, curimg)
 		cv2.imwrite(filenameprev, previmg)
 
+		#we want to save the absolute path filename
 		self.conn.execute("insert into %s (curimg, previmg, date, latitude, longitude, bearing, roll, pitch, yaw, IntrinsicMat, DistortionCoeff) values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" \
-										% (self.localDbTableName, filenamecur, filenameprev, date, lat, lon, bear, r, p, y, intrin, dist))
+										% (self.localDbTableName, os.path.abspath(filenamecur), os.path.abspath(filenameprev), date, lat, lon, bear, r, p, y, intrin, dist))
 		self.conn.commit()
 
 

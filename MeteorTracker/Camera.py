@@ -23,6 +23,7 @@ CHANGELOG:
     - 
 """
 
+#this a singleton instance of camera.  Doing so prevents multiple accesses on accident (although that shouldn't happen anyways)
 class Camera:
 	class __camera:
 		def __init__(self, source=None):
@@ -30,7 +31,7 @@ class Camera:
 			self.prev_frame = None
 			self.cur_frame = None
 			oper_sys = os.uname()[-1]
-			#if a rpi
+			#if a rpi, i.e. of arcitecture arm
 			if 'arm' in oper_sys and source is None:
 				self.camera_type = 'picam'
 			elif source is None:
@@ -64,6 +65,7 @@ class Camera:
 			self.cur_frame = frame
 			return frame
 
+		#this is just an easy way to track previous frames
 		def getPrevFrame(self):
 			if self.prev_frame is None:
 				return self.cur_frame
@@ -73,6 +75,7 @@ class Camera:
 			if self.camera_type == 'cvcam' or self.camera_type == 'custom':
 				self.camera.release()
 
+	#handles singleton instantiation
 	instance = None
 	def __init__(self, source=None):
 		if not Camera.instance:

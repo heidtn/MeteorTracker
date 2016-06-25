@@ -33,9 +33,13 @@ def initialize(configPath='config.ini'):
 	config.set('Database', 'Local', dbpath + '/local.db')
 	config.set('Database', 'LocalImages', impath + '/')
 
+	#TODO ask user for geodata
+	#TODO calibrate camera
+
 	with open(configPath, 'wb') as configfile:
 		config.write(configfile)
 
 
 if __name__ == "__main__":
+	#todo, use argparse to paramaterize setup
 	initialize()

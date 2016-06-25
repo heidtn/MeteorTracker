@@ -69,15 +69,19 @@ def findMotionAnomaly(previmg, curimg):
 	gray1 = cv2.GaussianBlur(gray1, (3, 3), 0)
 	gray2 = cv2.GaussianBlur(gray2, (3, 3), 0)
 
+	#finds the absolute difference between the two images
 	diff = cv2.absdiff(gray1, gray2)
+	#this makes sure the change is significant enough to not be noise
 	thresh = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)[1]
 
 	# dilate the thresholded image to fill in holes, then find contours
 	# on thresholded image
 	thresh = cv2.dilate(thresh, None, iterations=2)
 
+	#run a blob detector on the dilated image
 	keypts = detector.detect(thresh)
 
+	#copy image so we don't draw keypoints on both
 	im_with_keypoints = curimg.copy()
 	draw_keypoints(im_with_keypoints, keypts, (0,0,255))
 

@@ -16,8 +16,10 @@ CHANGELOG:
 dbdir = 'Database'
 imdir = 'Database/images'
 
+config = ConfigParser.ConfigParser()
+
+
 def initialize(configPath='config.ini'):
-	config = ConfigParser.ConfigParser()
 	config.read(configPath)
 
 	if not os.path.exists(dbdir):
@@ -38,6 +40,9 @@ def initialize(configPath='config.ini'):
 
 	with open(configPath, 'wb') as configfile:
 		config.write(configfile)
+
+def fillInConfig():
+	pass
 
 
 if __name__ == "__main__":

@@ -30,8 +30,11 @@ def initialize(configPath='config.ini'):
 	dbpath = os.path.abspath(dbdir)
 	impath = os.path.abspath(imdir)
 
-	config.set('Database', 'Local', dbpath)
-	config.set('Database', 'LocalImages', impath)
+	config.set('Database', 'Local', dbpath + '/local.db')
+	config.set('Database', 'LocalImages', impath + '/')
+
+	with open(configPath, 'wb') as configfile:
+		config.write(configfile)
 
 
 if __name__ == "__main__":

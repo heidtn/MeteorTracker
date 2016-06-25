@@ -52,7 +52,7 @@ class EventLogger():
 		dist = self.config.get('Camera', 'DistortionCoeff', 0)
 
 		if self.useLocal:
-			self.uploadToLocal(curimg, previmg, date, lat, lon, bear, intrin, dist)
+			self.uploadToLocal(curimg, previmg, date, lat, lon, bear, roll, pitch, yaw, intrin, dist)
 		if self.useRemote:
 			pass
 
@@ -72,13 +72,13 @@ class EventLogger():
 		cv2.imwrite(filenamecur, curimg)
 		cv2.imwrite(filenameprev, previmg)
 
-		self.conn.execute("insert into %s (curimg, previmg, date, latitude, longitude, bearing, roll, pitch, yaw, IntrinsicMat, DistortionCoeff) values ('%s','%s','%s','%s','%s','%s','%s','%s')" \
-										% (self.localDbTableName, filenamecur, filenameprev, date, float(lat), float(lon), float(bear), float(r), float(p), float(y), intrin, dist))
+		self.conn.execute("insert into %s (curimg, previmg, date, latitude, longitude, bearing, roll, pitch, yaw, IntrinsicMat, DistortionCoeff) values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" \
+										% (self.localDbTableName, filenamecur, filenameprev, date, lat, lon, bear, r, p, y, intrin, dist))
 		self.conn.commit()
 
 
 	def checkLocalDb(self):
-		sql = 'create table if not exists ' + self.localDbTableName + ' (curimg, previmg, date, latitude, longitude, bearing, roll, pitch, yaw, IntrinsicMat, DistortionCoeff)'
+		sql = 'create table if not exists ' + self.localDbTableName + ' (curimg, previmg, date, latitude REAL, longitude REAL, bearing REAL, roll REAL, pitch REAL, yaw REAL, IntrinsicMat, DistortionCoeff)'
 		c = self.conn.cursor()
 		c.execute(sql)
 		self.conn.commit()

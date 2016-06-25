@@ -40,6 +40,7 @@ class Tracker():
 			
 			#we have found an anomaly
 			if len(keypts) > 0:
+				print("Anomaly found!")
 				self.eventLogger.addEvent(curImg, prevImg)
 
 	def getLatestImg(self):

@@ -9,7 +9,7 @@ The primary goal is to find fallen meteors for scientific and hobbyist purposes 
 # Setup
 You'll need a computer with python (2.7 as of now) and opencv.  You'll also need an openCV compatible camera.  Lower light cameras are better.  The camera should be oriented orthogonally to the ground (i.e. up).  Run setup.py first.  Then run MeteorTracker.py and you're good to go.
 
-
+<div style="text-align:center"><img src ="MeteorCapture.png?raw=true" /></div>
 
 # Project Elements
 - Camera Calibration

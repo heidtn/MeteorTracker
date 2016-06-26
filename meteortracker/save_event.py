@@ -157,8 +157,8 @@ class EventLogger(object):
         longitude : float
             The geographical longitude of the camera
         bearing : float
-            If the camera is not facing up, this is the compass direction
-            it is facing
+            If there were an arrow starting from the middle of the camera
+            and pointing down, this is the compass direction it is facing
         roll : float
             Rotation along the axis of the direction the camera is facing
         pitch : float
@@ -216,7 +216,7 @@ class EventLogger(object):
         """
         This ensures that the database exists and that the specified
         table exists within it.
-        
+
         """
         sql_template = 'create table if not exists {table_name} ({fields})'
         db_command = sql_template.format(

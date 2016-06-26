@@ -27,39 +27,45 @@ class EventLogger(object):
         self.config.read(config_path)
 
         #get working variables from config file
-        self.local_db_name = self.config.get('Database', 'Local', 0)
-        self.local_db_table_name = self.config.get('Database', 'LocalTable', 0)
-        self.remote_db_name = self.config.get('Database', 'Remote', 0)
-        self.local_image_location = self.config.get('Database',
-                                                    'LocalImages',
-                                                    0)
+        self.local_db_name = self.config['Database']['Local']
+        self.local_db_table_name = self.config['Database']['LocalTable']
+        self.remote_db_name = self.config['Database']['Remote']
+        self.local_image_location = self.config['Database']['LocalImages']
 
-        self.use_local = bool(self.config.get('Database', 'UseLocal', 0))
-        self.use_remote = bool(self.config.get('Database', 'UseRemote', 0))
+        self.use_local = bool(self.config['Database']['UseLocal'])
+        self.use_remote = bool(self.config['Database']['UseRemote'])
 
         self.conn = sqlite3.connect(self.local_db_name)
+
+        self._variables = [('current_image',          'TEXT'),
+                           ('previous_image',         'TEXT'), 
+                           ('date',                   'TEXT'),
+                           ('latitude',               'REAL'),
+                           ('longitude',              'REAL'),
+                           ('bearing',                'REAL'),
+                           ('roll',                   'REAL'),
+                           ('pitch',                  'REAL'),
+                           ('yaw',                    'REAL'),
+                           ('intrinsic_matrix',       'TEXT'), 
+                           ('distortion_coefficient', 'TEXT')]
         # connect to db and create tables if they don't exist
         self.check_local_db()
-
-        self._variables = ['current_image', 'previous_image', 'date',
-                           'latitude', 'longitude', 'bearing',
-                           'roll', 'pitch', 'yaw',
-                           'intrinsic_matrix', 'distortion_coefficient']
 
     def __del__(self):
         self.conn.close()
 
     def add_event(self, current_image, previous_image):
         date = datetime.datetime.utcnow().isoformat()
-        latitude = self.config.get('Location', 'Latitude', 0)
-        longitude = self.config.get('Location', 'Longitude', 0)
-        bearing = self.config.get('Location', 'Bearing', 0)
-        roll = self.config.get('Location', 'Roll', 0)
-        pitch = self.config.get('Location', 'Pitch', 0)
-        yaw = self.config.get('Location', 'Yaw', 0)
+        latitude = self.config['Location']['Latitude']
+        longitude = self.config['Location']['Longitude']
+        bearing = self.config['Location']['Bearing']
+        roll = self.config['Location']['Roll']
+        pitch = self.config['Location']['Pitch']
+        yaw = self.config['Location']['Yaw']
 
-        intrinsic_matrix = self.config.get('Camera', 'IntrinsicMat', 0)
-        distortion_coefficient = self.config.get('Camera', 'DistortionCoeff', 0)
+        intrinsic_matrix = "'" + self.config['Camera']['IntrinsicMat'] + "'"
+        distortion_coefficient = "'" + \
+                            self.config['Camera']['DistortionCoeff'] + "'"
 
         if self.use_local:
             self.upload_to_local(
@@ -95,13 +101,32 @@ class EventLogger(object):
         cv2.imwrite(filename_current, current_image)
         cv2.imwrite(filename_previous, previous_image)
 
+        # This is more verbose than using locals() to index available
+        # variables, but far less confusing
+        values_to_add = [
+            repr(filename_current),
+            repr(filename_previous),
+            repr(date),
+            latitude,
+            longitude,
+            bearing,
+            roll,
+            pitch,
+            yaw, 
+            repr(intrinsic_matrix), 
+            repr(distortion_coefficient)
+        ]
+
         sql_template = 'insert into {table_name} ({fields}) values ({values})'
         db_command = sql_template.format(
             table_name=self.local_db_table_name,
-            fields=", ".join(variables),
-            values=", ".join(str(_read(variable))
-                             for variable in self._variables)
+            fields=", ".join(variable for (variable, _) in self._variables),
+            values=", ".join(
+                value
+                for value in values_to_add
+            )
         )
+
         self.conn.execute(db_command)
         self.conn.commit()
 
@@ -110,13 +135,12 @@ class EventLogger(object):
         db_command = sql_template.format(
             table_name = self.local_db_table_name,
             fields=", ".join(
-                variable
-                + (" REAL" if isinstance(_read(variable), numbers.Real) else "")
-                for variable in self._variables
+                variable + " " + data_type
+                for (variable, data_type) in self._variables
             )
         )
         c = self.conn.cursor()
-        c.execute(sql)
+        c.execute(db_command)
         self.conn.commit()
 
 

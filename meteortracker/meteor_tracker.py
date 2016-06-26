@@ -31,10 +31,10 @@ class Tracker(object):
     config : ConfigParser
         This is to parse the config file for different user settings
     event_logger : EventLogger
-        When an event is detected, the images are passed to this class for 
+        When an event is detected, the images are passed to this class for
         logging
     event_finder : EventFinder
-        This class is in charge of viewing images to actually find the 
+        This class is in charge of viewing images to actually find the
         events themselves.
     """
     def __init__(self, source=None):

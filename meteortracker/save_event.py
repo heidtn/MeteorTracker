@@ -17,13 +17,14 @@ import sys
 import cv2
 import os
 
+
 def _read(variable):
     return getattr(sys.modules[__name__], variable)
 
 
 class EventLogger(object):
     """
-    When a new event is detected, it is passed to this class to log it in 
+    When a new event is detected, it is passed to this class to log it in
     a sqlite database.
 
     Parameters
@@ -54,13 +55,13 @@ class EventLogger(object):
     def __init__(self, config_path='config.ini'):
         config_path = os.path.abspath(os.path.join(
                                         os.path.dirname(__file__), config_path
-                                        )
-                                     )
+                                                   )
+                                      )
 
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
 
-        #get working variables from config file
+        # get working variables from config file
         self.local_db_name = self.config['Database']['Local']
         self.local_db_table_name = self.config['Database']['LocalTable']
         self.remote_db_name = self.config['Database']['Remote']
@@ -71,9 +72,9 @@ class EventLogger(object):
 
         self.conn = sqlite3.connect(self.local_db_name)
 
-        #these are the names of the columns in the database
+        # these are the names of the columns in the database
         self._variables = [('current_image',          'TEXT'),
-                           ('previous_image',         'TEXT'), 
+                           ('previous_image',         'TEXT'),
                            ('date',                   'TEXT'),
                            ('latitude',               'REAL'),
                            ('longitude',              'REAL'),
@@ -81,7 +82,7 @@ class EventLogger(object):
                            ('roll',                   'REAL'),
                            ('pitch',                  'REAL'),
                            ('yaw',                    'REAL'),
-                           ('intrinsic_matrix',       'TEXT'), 
+                           ('intrinsic_matrix',       'TEXT'),
                            ('distortion_coefficient', 'TEXT')]
         # connect to db and create tables if they don't exist
         self._check_local_db()
@@ -172,8 +173,8 @@ class EventLogger(object):
             A string containing the distortion coefficient used to remove 
             lensing in a camera image (like that in fisheye lenses)
         """
-        # save the images locally, we don't want them in the database so they're
-        # easier to work with
+        # save the images locally, we don't want them in the database 
+        # so they're easier to work with
         filename_format = '{location}_{date}_{{order}}.jpg'.format(
             location=self.local_image_location, date=date)
 
@@ -220,7 +221,7 @@ class EventLogger(object):
         """
         sql_template = 'create table if not exists {table_name} ({fields})'
         db_command = sql_template.format(
-            table_name = self.local_db_table_name,
+            table_name=self.local_db_table_name,
             fields=", ".join(
                 variable + " " + data_type
                 for (variable, data_type) in self._variables
@@ -234,4 +235,3 @@ class EventLogger(object):
 if __name__ == "__main__":
     print("starting in test mode")
     e = EventLogger()
-

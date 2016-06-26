@@ -16,6 +16,7 @@ TODO:
 """
 import cv2
 
+
 class EventFinder(object):
     """
     This class takes in images from a video stream to determine if they
@@ -24,7 +25,7 @@ class EventFinder(object):
     Attributes
     ----------
     detector : cv2.SimpleBlobDetector
-        This is a blob detector algorithm that is used to isolate changes 
+        This is a blob detector algorithm that is used to isolate changes
         between frames
     """
     def __init__(self):
@@ -42,13 +43,12 @@ class EventFinder(object):
         keypoints : list of cv2.KeyPoints
             This is a list of KeyPoints where events have been detected.
         color : tuple
-            color is a tuple of length 3 that specifies the RGB values of 
+            color is a tuple of length 3 that specifies the RGB values of
             the circles
         """
         for kp in keypoints:
             x, y = kp.pt
             cv2.circle(vis, (int(x), int(y)), 6, color)
-
 
     def get_blob_detector(self):
         """
@@ -91,7 +91,6 @@ class EventFinder(object):
             detector = cv2.SimpleBlobDetector_create(params)
 
         return detector
-
 
     def find_motion_anomaly(self, previous_image, current_image):
         """

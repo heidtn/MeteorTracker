@@ -54,7 +54,7 @@ def sectionMeteorEvents(meteorEvents):
     sectionedEvents = []
     section = []
     # Here we go through the meteor events, and if there is a sufficiently
-    # large gap in time between two events, we can rule out the possiblity 
+    # large gap in time between two events, we can rule out the possiblity
     # of those events being related
     for evt in meteorEvents:
         if(len(section) > 0):
@@ -127,7 +127,7 @@ def getAllEvents():
     c = conn.cursor()
     for row in c.execute("SELECT * FROM %s" % dbTable):
         events.append(row)
-    conn.close()    
+    conn.close()   
     print("Found %d events." % len(events))
     return events
 

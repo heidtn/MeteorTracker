@@ -50,6 +50,7 @@ def initialize(config_path='config.ini'):
     with open(config_path, 'w') as configfile:
         config.write(configfile)
 
+
 def setup_directories(config):
     if not os.path.exists(db_dir):
         print("creating database directory")
@@ -63,6 +64,7 @@ def setup_directories(config):
 
     config['Database']['Local'] = db_path + '/local.db'
     config['Database']['LocalImages'] = im_path + '/'
+
 
 def get_user_settings(config):
     setup = input("Would you like to answer the setup questions? (Y/n): ")
@@ -79,7 +81,7 @@ def get_user_settings(config):
                             "Enter your longitude with format nnn.nnnnnn: "
                                 )
 
-    print("\nDetermine the orientation of your camera." 
+    print("\nDetermine the orientation of your camera."
           " It is best if the camera faces directly upwards.")
 
     roll = _get_input_float(
@@ -107,6 +109,7 @@ def get_user_settings(config):
     config['Location']['yaw']
     config['Location']['bearing']
 
+
 def calibrate_camera(config):
     setup = input("Would you like to calibrate the camera? (Y/n): ")
     if setup is not '' and setup.lower() is not 'y':
@@ -120,7 +123,7 @@ def calibrate_camera(config):
 
     config['Camera']['intrinsicmat'] = string_matrix
     config['Camera']['distortioncoeff'] = string_distortion
-    
+
 
 def _get_input_float(request):
     while True:

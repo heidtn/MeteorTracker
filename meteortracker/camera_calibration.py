@@ -22,6 +22,14 @@ numImages = 30
 
 
 def calibrate_camera():
+    """
+    This uses the camera to create an intrinsic matrix and distortion 
+    coefficient for calibrating the camera.  The intrinsic matrix can 
+    be used to determine true angles and is necessary for triangulation.
+    The distortion coefficient is used to straighten out lense distortion like
+    that seen in fisheye lenses.
+
+    """
     print("Starting Camera Calibration.  Waiting for image with checkerboard.")
     # termination criteria
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -91,6 +99,20 @@ def calibrate_camera():
 
 
 def undistort_image(img, camMatrix, distCoeff):
+    """
+    This can straighten out an image given the intrinsic matrix (camera 
+    matrix) and the distortion coefficients.
+
+    Parameters
+    ----------
+    img : image
+        This is the image we wish to undistort
+    camMatrix : 2dmatrix
+        This is the intrinsic matrix of the camera (3x3)
+    distCoeff : 1darray
+        This is the distortion coefficient of the camera (1x5)
+
+    """
     h,  w = img.shape[:2]
     newcameramtx, roi=cv2.getOptimalNewCameraMatrix(camMatrix,distCoeff,(w,h),1,(w,h))
     # undistort

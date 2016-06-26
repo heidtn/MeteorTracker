@@ -19,8 +19,8 @@ class Tracker(object):
         self.cam = camera.Camera(source)
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
-        self.eventLogger = save_event.EventLogger()
-        self.global_dict = source
+        self.event_logger = save_event.EventLogger()
+        self.event_finder = find_events.EventFinder()
 
     def run(self):
         while True:
@@ -28,18 +28,13 @@ class Tracker(object):
             previous_image = self.cam.get_previous_frame()
 
             # detect number of anomalies (keypoints) and highlight them in im
-            keypoints, im = find_events.find_motion_anomaly(previous_image,
+            keypoints, im = self.event_finder.find_motion_anomaly(previous_image,
                                                             current_image)
 
             # we have found an anomaly
             if keypoints:
                 print("Anomaly found!")
                 self.eventLogger.add_event(curImg, prevImg)
-
-    def get_latest_image(self):
-        print("returning image")
-        return self.global_dict['lastestimage']
-
 
 if __name__ == "__main__":
     Tracker().run()

@@ -84,7 +84,6 @@ class Camera(object):
         if not Camera.instance:
             Camera.instance = Camera._Camera(source)
         else:
-            # this doesn't really even matter...
             Camera.instance.source = source
 
     def __getattr__(self, name):

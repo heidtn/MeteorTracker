@@ -14,6 +14,8 @@ im_dir = 'database/images'
 
 
 def initialize(config_path='config.ini'):
+    config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config_path))
+
     config = configparser.ConfigParser()
     config.read(config_path)
 

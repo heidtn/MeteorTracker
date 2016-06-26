@@ -15,7 +15,7 @@ import sqlite3
 import sys
 
 import cv2
-
+import os
 
 def _read(variable):
     return getattr(sys.modules[__name__], variable)
@@ -23,6 +23,8 @@ def _read(variable):
 
 class EventLogger(object):
     def __init__(self, config_path='config.ini'):
+        config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config_path))
+        
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
 

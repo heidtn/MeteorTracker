@@ -83,7 +83,8 @@ class EventLogger(object):
                            ('pitch',                  'REAL'),
                            ('yaw',                    'REAL'),
                            ('intrinsic_matrix',       'TEXT'),
-                           ('distortion_coefficient', 'TEXT')]
+                           ('distortion_coefficient', 'TEXT'),
+                           ('user_key',               'TEXT')]
         # connect to db and create tables if they don't exist
         self._check_local_db()
 
@@ -118,29 +119,35 @@ class EventLogger(object):
         distortion_coefficient = "'" + \
                             self.config['Camera']['DistortionCoeff'] + "'"
 
+        user_key = self.config['Database']['user_key']
+
         if self.use_local:
             self._upload_to_local(
                 current_image, previous_image, date, latitude, longitude,
                 bearing, roll, pitch, yaw,
-                intrinsic_matrix, distortion_coefficient
+                intrinsic_matrix, distortion_coefficient,
+                user_key
             )
         if self.use_remote:
             self._upload_to_remote(
                 current_image, previous_image, date, latitude, longitude,
                 bearing, roll, pitch, yaw,
-                intrinsic_matrix, distortion_coefficient
+                intrinsic_matrix, distortion_coefficient,
+                user_key
             )
 
     def _upload_to_remote(self, current_image, previous_image, date,
                          latitude, longitude, bearing,
                          roll, pitch, yaw,
-                         intrinsic_matrix, distortion_coefficient):
+                         intrinsic_matrix, distortion_coefficient,
+                         user_key):
         ...
 
     def _upload_to_local(self, current_image, previous_image, date,
                         latitude, longitude, bearing,
                         roll, pitch, yaw,
-                        intrinsic_matrix, distortion_coefficient):
+                        intrinsic_matrix, distortion_coefficient,
+                        user_key):
         """
         This takes all the parameters needed to upload an event to the 
         remote database
@@ -197,7 +204,8 @@ class EventLogger(object):
             pitch,
             yaw, 
             repr(intrinsic_matrix), 
-            repr(distortion_coefficient)
+            repr(distortion_coefficient),
+            repr(user_key)
         ]
 
         sql_template = 'insert into {table_name} ({fields}) values ({values})'

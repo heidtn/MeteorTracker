@@ -101,13 +101,15 @@ def get_user_settings(config):
     bearing = _get_input_float(
                           "Enter the bearing angle of the camera in degrees: "
                               )
+    user_key = input("Enter your user key: ")
 
-    config['Location']['latitude']
-    config['Location']['longitude']
-    config['Location']['roll']
-    config['Location']['pitch']
-    config['Location']['yaw']
-    config['Location']['bearing']
+    config['Location']['latitude'] = latitude
+    config['Location']['longitude'] = longitude
+    config['Location']['roll'] = roll
+    config['Location']['pitch'] = pitch
+    config['Location']['yaw'] = yaw
+    config['Location']['bearing'] = bearing
+    config['Database']['user_key'] = user_key
 
 
 def calibrate_camera(config):

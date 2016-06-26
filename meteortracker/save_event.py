@@ -73,18 +73,18 @@ class EventLogger(object):
         self.conn = sqlite3.connect(self.local_db_name)
 
         # these are the names of the columns in the database
-        self._variables = [('current_image',          'TEXT'),
-                           ('previous_image',         'TEXT'),
-                           ('date',                   'TEXT'),
-                           ('latitude',               'REAL'),
-                           ('longitude',              'REAL'),
-                           ('bearing',                'REAL'),
-                           ('roll',                   'REAL'),
-                           ('pitch',                  'REAL'),
-                           ('yaw',                    'REAL'),
-                           ('intrinsic_matrix',       'TEXT'),
-                           ('distortion_coefficient', 'TEXT'),
-                           ('user_key',               'TEXT')]
+        self._variables = {'current_image':          'TEXT',
+                           'previous_image':         'TEXT',
+                           'date':                   'TEXT',
+                           'latitude':               'REAL',
+                           'longitude':              'REAL',
+                           'bearing':                'REAL',
+                           'roll':                   'REAL',
+                           'pitch':                  'REAL',
+                           'yaw':                    'REAL',
+                           'intrinsic_matrix':       'TEXT',
+                           'distortion_coefficient': 'TEXT',
+                           'user_key':               'TEXT'}
         # connect to db and create tables if they don't exist
         self._check_local_db()
 
@@ -211,7 +211,8 @@ class EventLogger(object):
         sql_template = 'insert into {table_name} ({fields}) values ({values})'
         db_command = sql_template.format(
             table_name=self.local_db_table_name,
-            fields=", ".join(variable for (variable, _) in self._variables),
+            fields=", ".join(variable for (variable, _) 
+                             in self._variables.items()),
             values=", ".join(
                 value
                 for value in values_to_add
@@ -232,7 +233,7 @@ class EventLogger(object):
             table_name=self.local_db_table_name,
             fields=", ".join(
                 variable + " " + data_type
-                for (variable, data_type) in self._variables
+                for (variable, data_type) in self._variables.items()
             )
         )
         c = self.conn.cursor()

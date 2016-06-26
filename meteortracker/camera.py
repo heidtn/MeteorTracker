@@ -24,9 +24,31 @@ CameraType = enum.Enum('CameraType', 'pi cv custom')
 
 
 class Camera(object):
+    """
+    This class handles image source and streams.
+
+    Parameters
+    ----------
+    source : str, int
+        If passed the path to a video file, the Camera class will use that
+        as the streaming source.  If passed an integer, the class will use
+        the index of the available attached camera devices.
+
+    Attributes
+    ----------
+    previous_frame : cv2.Image
+        This is an OpenCV datatype that holds the previous frame collected
+    current_frame : cv2.Image
+        This is an OpenCV datatype that holds the current frame
+    camera : cv2.VideoCapture
+        This class is used as a wrapper to stream frames from a video source
+    instance : _Camera
+        A singleton instance for camera access.
+    camera_type : CameraType
+        An enum used to reference the streaming source
+    """
     class _Camera(object):
         def __init__(self, source=None):
-            self.camera_settings = dict()
             self.previous_frame = None
             self.current_frame = None
             operating_system = os.uname()[-1]
@@ -54,6 +76,11 @@ class Camera(object):
                 self.camera = cv2.VideoCapture(source)
 
         def get_frame(self):
+            """
+            Gets the next frame from the video stream.  Querying this will
+            retrieve a new frame from the device
+
+            """
             if self.camera_type == CameraType.pi:
                 with picamera.array.PiRGBArray(self.camera) as stream:
                     self.camera.capture(stream, format='rgb')
@@ -70,6 +97,11 @@ class Camera(object):
             return frame
 
         def get_previous_frame(self):
+            """
+            After get_frame is called, this can be used to access the previous
+            frame
+
+            """
             if self.previous_frame is None:
                 return self.current_frame
             return self.previous_frame

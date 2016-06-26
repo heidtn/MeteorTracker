@@ -22,9 +22,41 @@ def _read(variable):
 
 
 class EventLogger(object):
+    """
+    When a new event is detected, it is passed to this class to log it in 
+    a sqlite database.
+
+    Parameters
+    ----------
+    config_path : string
+        This contains the path to the config file relative to this file
+
+    Attributes
+    ----------
+    config : ConfigParser
+        This is used to access and parse the data in the config file
+    local_db_name : str
+        This is the full path of the local sqlite database
+    local_db_table_name : str
+        The name of the table within the database to store new events
+    remote_db_name : str
+        A url pointing to the remote server
+    local_image_location : str
+        Images are stored in this directory, and the database points to them
+    use_local : bool
+        Specifies whether or not to store events locally
+    use_remote : bool
+        Specifies whether or not to send events to the remote database
+    conn : sqlite3.Connection
+        An instance of the connection to the local database used to access
+        for storage
+    """
     def __init__(self, config_path='config.ini'):
-        config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config_path))
-        
+        config_path = os.path.abspath(os.path.join(
+                                        os.path.dirname(__file__), config_path
+                                        )
+                                     )
+
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
 
@@ -39,6 +71,7 @@ class EventLogger(object):
 
         self.conn = sqlite3.connect(self.local_db_name)
 
+        #these are the names of the columns in the database
         self._variables = [('current_image',          'TEXT'),
                            ('previous_image',         'TEXT'), 
                            ('date',                   'TEXT'),
@@ -51,12 +84,27 @@ class EventLogger(object):
                            ('intrinsic_matrix',       'TEXT'), 
                            ('distortion_coefficient', 'TEXT')]
         # connect to db and create tables if they don't exist
-        self.check_local_db()
+        self._check_local_db()
 
     def __del__(self):
+        """
+        When this class is deleted (i.e. the program is killed) we want to
+        ensure we gracefully close the connection to the database
+
+        """
         self.conn.close()
 
     def add_event(self, current_image, previous_image):
+        """
+        When we detect a new event, it is passed to this function for storage
+
+        Parameters
+        ----------
+        current_image : cv2.Image
+            The current image of the detection event
+        previous_image : cv2.Image
+            The previous image of the detection event
+        """
         date = datetime.datetime.utcnow().isoformat()
         latitude = self.config['Location']['Latitude']
         longitude = self.config['Location']['Longitude']
@@ -70,28 +118,60 @@ class EventLogger(object):
                             self.config['Camera']['DistortionCoeff'] + "'"
 
         if self.use_local:
-            self.upload_to_local(
+            self._upload_to_local(
                 current_image, previous_image, date, latitude, longitude,
                 bearing, roll, pitch, yaw,
                 intrinsic_matrix, distortion_coefficient
             )
         if self.use_remote:
-            self.upload_to_remote(
+            self._upload_to_remote(
                 current_image, previous_image, date, latitude, longitude,
                 bearing, roll, pitch, yaw,
                 intrinsic_matrix, distortion_coefficient
             )
 
-    def upload_to_remote(self, current_image, previous_image, date,
+    def _upload_to_remote(self, current_image, previous_image, date,
                          latitude, longitude, bearing,
                          roll, pitch, yaw,
                          intrinsic_matrix, distortion_coefficient):
         ...
 
-    def upload_to_local(self, current_image, previous_image, date,
+    def _upload_to_local(self, current_image, previous_image, date,
                         latitude, longitude, bearing,
                         roll, pitch, yaw,
                         intrinsic_matrix, distortion_coefficient):
+        """
+        This takes all the parameters needed to upload an event to the 
+        remote database
+
+        Parameters
+        ----------
+        current_image : cv2.Image
+            The current image from the detection event
+        previous_image : cv2.Image
+            The previous image from the detection event
+        date : datetime
+            The date and time the event occured
+        latitude : float
+            The geographical latitude of the camera
+        longitude : float
+            The geographical longitude of the camera
+        bearing : float
+            If the camera is not facing up, this is the compass direction
+            it is facing
+        roll : float
+            Rotation along the axis of the direction the camera is facing
+        pitch : float
+            Rotation along the side to side axis of the camera
+        yaw : float
+            Rotation along the vertical axis of the camera
+        intrinsic_matrix : str
+            A string containing the intrinsic matrix of the camera used for
+            camera calibration, and angle calcuation
+        distortion_coefficient : str
+            A string containing the distortion coefficient used to remove 
+            lensing in a camera image (like that in fisheye lenses)
+        """
         # save the images locally, we don't want them in the database so they're
         # easier to work with
         filename_format = '{location}_{date}_{{order}}.jpg'.format(
@@ -132,7 +212,12 @@ class EventLogger(object):
         self.conn.execute(db_command)
         self.conn.commit()
 
-    def check_local_db(self):
+    def _check_local_db(self):
+        """
+        This ensures that the database exists and that the specified
+        table exists within it.
+        
+        """
         sql_template = 'create table if not exists {table_name} ({fields})'
         db_command = sql_template.format(
             table_name = self.local_db_table_name,

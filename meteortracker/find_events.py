@@ -1,27 +1,61 @@
 """
 @author(s): Nathan Heidt, Jean Nassar
 
-This contains the functions responsible for detecting meteor events
+This contains the functions responsible for detecting meteor events.  Currently
+it uses a simple blob detector on diffed frames.  This works all right in some
+situations and tends the catch the majority of actual meteor events.  However,
+there can be a lot of false positives when using noisy cameras.
 
 TODO:
     - Check for airplanes/satellites/non meteoric anomalies
     - Normalize lighting
-    - Check for star shifts to ensure these don't create false positives
+    - Check for star shifts (due to the earths rotation)
+      to ensure these don't create false positives on long
+      exposure shots
 
 """
 import cv2
 
 class EventFinder(object):
+    """
+    This class takes in images from a video stream to determine if they
+    contain an instance of a meteor
+
+    Attributes
+    ----------
+    detector : cv2.SimpleBlobDetector
+        This is a blob detector algorithm that is used to isolate changes 
+        between frames
+    """
     def __init__(self):
         self.detector = self.get_blob_detector()
 
     def draw_keypoints(self, vis, keypoints, color=(0, 255, 255)):
+        """
+        This function is mostly used for debugging purposes.  Given an image
+        it will draw circles on every keypoint it finds.
+
+        Parameters
+        ----------
+        vis : Image
+            The image to draw the circles on
+        keypoints : list of cv2.KeyPoints
+            This is a list of KeyPoints where events have been detected.
+        color : tuple
+            color is a tuple of length 3 that specifies the RGB values of 
+            the circles
+        """
         for kp in keypoints:
             x, y = kp.pt
             cv2.circle(vis, (int(x), int(y)), 6, color)
 
 
     def get_blob_detector(self):
+        """
+        This generates a blob detector based on arbitrary parameters tuned for
+        this particular project
+
+        """
         # Setup SimpleBlobDetector parameters.
         params = cv2.SimpleBlobDetector_Params()
 
@@ -60,6 +94,17 @@ class EventFinder(object):
 
 
     def find_motion_anomaly(self, previous_image, current_image):
+        """
+        Given two images, this function compares them to find potential
+        meteors.
+
+        Parameters
+        ----------
+        previous_image : cv2.Image
+            The previous image to compare against
+        current_image : cv2.Image
+            The current image to compare against
+        """
         # Our operations on the frame come here
         gray1 = cv2.cvtColor(previous_image, cv2.COLOR_BGR2GRAY)
         gray2 = cv2.cvtColor(current_image, cv2.COLOR_BGR2GRAY)

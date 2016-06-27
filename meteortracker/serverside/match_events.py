@@ -20,7 +20,7 @@ dbTable = 'events'
 
 # Max delay (seconds) between meteor events before we section them
 # This really only works with small sample sizes
-maxDelay = 60.0
+maxDelay = 5.0
 # What is the furthest two observers could see the same meteories (km)
 maxDistance = 1000.0
 
@@ -32,14 +32,29 @@ def main():
 
 def sectionMeteorEvents(meteorEvents):
     """
-    This takes a list of meteor events and sections them into a list of lists
-    of events that are likely to be of the same meteor event
+    This takes a list of meteor events and sections them into a dictionary
+    of lists where each key represents a user_key and each list represents
+    all the events for that user.
+
+    It then goes through user by user and splits up the single list into
+    a list of event frames.  For example a single meteor event make take up 
+    2 or more frames of images so they will be put together in a single
+    list.
+
+    Here is what this looks like:
+
+    {
+        'user_key_1' : [[evt1frame1,evt1frame2,...],[evt2frame1,...],...],
+        'user_key_2' : [[evt1frame1,evt1frame2,...],[evt2frame1,...],...],
+        ...  
+    }
 
     Parameters
     ----------
     meteorEvents : list of dicts
         Essentially a list of the meteor events as described by the database
         columns.  The dictionary key is the name of each database column.
+    
     """
 
     # Convert the date from string format to datetime format
@@ -49,26 +64,39 @@ def sectionMeteorEvents(meteorEvents):
                                                 "%Y-%m-%dT%H:%M:%S.%f"
                                             )
 
-    meteorEvents = sorted(meteorEvents, key=lambda k: k['date'])
+    # Create a dictionary where the key is the user_key and the value is a
+    # list of that users events
+    user_events = {}
+    for evt in meteorEvents:
+        user_events.setdefault(evt['user_key'], [])
+        user_events[evt['user_key']].append(evt)
+    
+    # Sort each users events by time
+    for key in user_events:
+        user_events[key] = sorted(user_events[key], key=lambda k: k['date'])
 
-    sectionedEvents = []
-    section = []
+
     # Here we go through the meteor events, and if there is a sufficiently
     # large gap in time between two events, we can rule out the possiblity
-    # of those events being related
-    for evt in meteorEvents:
-        if(len(section) > 0):
-            current_date = evt['date']
-            most_recent_date = section[-1]['date']
-            if (current_date - most_recent_date).total_seconds() > maxDelay:
-                sectionedEvents.append(section)
-                section = []
-            section.append(evt)
-        else:
-            section.append(evt)
+    # of those events being related.  There are better methods using CV,
+    # but this is fast and has very few false negatives
+    for key in user_events:
+        sectionedEvents = []
+        section = []
+        for evt in user_events[key]:
+            if(len(section) > 0):
+                current_date = evt['date']
+                most_recent_date = section[-1]['date']
+                if (current_date - most_recent_date).total_seconds() > maxDelay:
+                    sectionedEvents.append(section)
+                    section = []
+                section.append(evt)
+            else:
+                section.append(evt)
+        user_events[key] = sectionedEvents
 
     # TODO: do the same as above, but with distance
-    return sectionedEvents
+    return user_events
 
 
 def distanceBetweenCoords(lat1, lon1, lat2, lon2):

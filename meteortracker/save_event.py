@@ -73,18 +73,19 @@ class EventLogger(object):
         self.conn = sqlite3.connect(self.local_db_name)
 
         # these are the names of the columns in the database
-        self._variables = {'current_image':          'TEXT',
-                           'previous_image':         'TEXT',
-                           'date':                   'TEXT',
-                           'latitude':               'REAL',
-                           'longitude':              'REAL',
-                           'bearing':                'REAL',
-                           'roll':                   'REAL',
-                           'pitch':                  'REAL',
-                           'yaw':                    'REAL',
-                           'intrinsic_matrix':       'TEXT',
-                           'distortion_coefficient': 'TEXT',
-                           'user_key':               'TEXT'}
+        self._variables = [('current_image',          'TEXT'),
+                           ('previous_image',         'TEXT'),
+                           ('date',                   'TEXT'),
+                           ('latitude',               'REAL'),
+                           ('longitude',              'REAL'),
+                           ('bearing',                'REAL'),
+                           ('roll',                   'REAL'),
+                           ('pitch',                  'REAL'),
+                           ('yaw',                    'REAL'),
+                           ('altitude',               'REAL'),
+                           ('intrinsic_matrix',       'TEXT'),
+                           ('distortion_coefficient', 'TEXT'),
+                           ('user_key',               'TEXT')]
         # connect to db and create tables if they don't exist
         self._check_local_db()
 
@@ -108,12 +109,13 @@ class EventLogger(object):
             The previous image of the detection event
         """
         date = datetime.datetime.utcnow().isoformat()
-        latitude = self.config['Location']['Latitude']
-        longitude = self.config['Location']['Longitude']
-        bearing = self.config['Location']['Bearing']
-        roll = self.config['Location']['Roll']
-        pitch = self.config['Location']['Pitch']
-        yaw = self.config['Location']['Yaw']
+        latitude = self.config['Location']['latitude']
+        longitude = self.config['Location']['longitude']
+        bearing = self.config['Location']['bearing']
+        roll = self.config['Location']['roll']
+        pitch = self.config['Location']['pitch']
+        yaw = self.config['Location']['yaw']
+        altitude = self.config['Location']['altitude']
 
         intrinsic_matrix = "'" + self.config['Camera']['IntrinsicMat'] + "'"
         distortion_coefficient = "'" + \
@@ -138,14 +140,14 @@ class EventLogger(object):
 
     def _upload_to_remote(self, current_image, previous_image, date,
                          latitude, longitude, bearing,
-                         roll, pitch, yaw,
+                         roll, pitch, yaw, altitude,
                          intrinsic_matrix, distortion_coefficient,
                          user_key):
         ...
 
     def _upload_to_local(self, current_image, previous_image, date,
                         latitude, longitude, bearing,
-                        roll, pitch, yaw,
+                        roll, pitch, yaw, altitude,
                         intrinsic_matrix, distortion_coefficient,
                         user_key):
         """
@@ -202,7 +204,8 @@ class EventLogger(object):
             bearing,
             roll,
             pitch,
-            yaw, 
+            yaw,
+            altitude, 
             repr(intrinsic_matrix), 
             repr(distortion_coefficient),
             repr(user_key)
@@ -212,11 +215,8 @@ class EventLogger(object):
         db_command = sql_template.format(
             table_name=self.local_db_table_name,
             fields=", ".join(variable for (variable, _) 
-                             in self._variables.items()),
-            values=", ".join(
-                value
-                for value in values_to_add
-            )
+                             in self._variables),
+            values=", ".join(value for value in values_to_add)
         )
 
         self.conn.execute(db_command)
@@ -233,7 +233,7 @@ class EventLogger(object):
             table_name=self.local_db_table_name,
             fields=", ".join(
                 variable + " " + data_type
-                for (variable, data_type) in self._variables.items()
+                for (variable, data_type) in self._variables
             )
         )
         c = self.conn.cursor()

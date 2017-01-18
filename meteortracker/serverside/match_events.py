@@ -1,6 +1,7 @@
 import sqlite3
 import datetime
 import math
+import triangulate_events
 
 """
 @author(s): Nathan Heidt
@@ -21,13 +22,98 @@ dbTable = 'events'
 # Max delay (seconds) between meteor events before we section them
 # This really only works with small sample sizes
 maxDelay = 5.0
+
 # What is the furthest two observers could see the same meteories (km)
-maxDistance = 1000.0
+maxDistance = 100.0
+
+# How long (seconds) apart can separate cameras see the same sample
+maxTimeBetweenSamples = 5.0
 
 
 def main():
     meteorEvents = getAllEvents()
     sectionedEvents = sectionMeteorEvents(meteorEvents)
+    matchedEvents = matchMeteorEvents(sectionedEvents)
+
+    for event in matchedEvents:
+        if(len(event) == 2):
+            triangulator = triangulate_events.Triangulator(event[0], event[1])
+
+
+def compareEvents(evt1, evt2):
+    """
+    This takes two event lists and performs checks to see if they are possible
+    matches of the same meteor
+    """
+
+    firstEvt1 = evt1[0]
+    firstEvt2 = evt2[0]
+
+    # check time first
+    current_date = firstEvt1['date'] #time of this events first evt
+    most_recent_date = firstEvt2['date']
+
+    if (current_date - most_recent_date).total_seconds() > maxTimeBetweenSamples:
+        return False
+
+
+    # check distance between users
+    user1lat = firstEvt1['latitude']
+    user1lon = firstEvt1['longitude']
+
+    user2lat = firstEvt2['latitude']
+    user2lon = firstEvt2['longitude']
+
+    if distanceBetweenCoords(user1lat, user1lon, user2lat, user2lon) > maxDistance:
+        return False
+
+
+    # TODO check the skew line distance between the images
+    # need to extract the meteor location in image, the angle from center,
+    # the absolute angle from earth center, and then skew line intersection
+
+    return True
+
+
+
+def matchMeteorEvents(sectionedEvents):
+    """
+    This takes the sectioned events from sectionMeteorEvents and pairs 
+    possible events together.
+
+    checks:
+        - if two users saw an event within some timeframe
+        - if those users are within some distance of each other
+        - if the skew line distance between their view is minimal
+
+    If the checks pass then it is considered to be the same meteor sighting
+    """
+
+    #unroll the users events first [[evt1..],[evt2..],..]
+    unrolledEvents = []
+    for user in sectionedEvents:
+        for evt in sectionedEvents[user]:
+            unrolledEvents.append(evt)
+
+    #now sort by time of the first event
+    sortedEvents = sorted(unrolledEvents, key=lambda x: x[0]['date'])
+
+    #compile into sections based on checks
+    coincidentEvents = []
+    section = []
+    for evt in sortedEvents:
+        if(len(section) > 0):
+            if compareEvents(evt, section[0]) == False
+                sectionedEvents.append(section)
+                section = []
+            section.append(evt)
+        else:
+            section.append(evt)
+
+    return coincidentEvents
+    
+
+
 
 
 def sectionMeteorEvents(meteorEvents):
@@ -129,8 +215,12 @@ def distanceBetweenCoords(lat1, lon1, lat2, lon2):
 
     return d
 
+def skewLineDistance(evt1, evt2):
+    """
+    given two events compute the skew line distance between them
+    """
 
-def dict_factory(cursor, row):
+def dictFactory(cursor, row):
     """
     This is a helper function to create a dictionary using the column names
     from the database as the keys
@@ -151,7 +241,7 @@ def getAllEvents():
     events = []
     print("Fetching database tables")
     conn = sqlite3.connect(databasePath)
-    conn.row_factory = dict_factory
+    conn.row_factory = dictFactory
     c = conn.cursor()
     for row in c.execute("SELECT * FROM %s" % dbTable):
         events.append(row)

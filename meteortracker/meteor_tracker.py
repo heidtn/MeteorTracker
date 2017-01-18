@@ -63,7 +63,7 @@ class Tracker(object):
             # we have found an anomaly
             if keypoints:
                 print("Anomaly found!")
-                self.eventLogger.add_event(curImg, prevImg)
+                self.event_logger.add_event(curImg, prevImg)
 
 if __name__ == "__main__":
     Tracker().run()

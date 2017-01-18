@@ -146,3 +146,5 @@ CATKIN_IGNORE
 # Custom ignores
 *.db
 database/
+
+venv/

@@ -28,6 +28,8 @@ Here is the current layout of the file structure:
 - MeteorTracker.py - this runs the show.  It instantiates a camera and collects images looking for meteor events.  
 - VideWrited.py - intended for debugging purposes, this takes a number of frames and outputs a .avi file.
 
-NOT WORKING:
+TODO:
 - ParseStars.py - this is a work in progress.  The idea is that the camera can find its orientation (and in the future, perhaps approximate location), based on its current view of the stars and the current time.
 - server.py - a poor attempt at getting a live interactive server to work with the MeteorTracker.py code.  It needs to be redone at some point.
+- skew line measurement between events from separate cameras
+- multiple image sequence line drawing and correlation for triangulation

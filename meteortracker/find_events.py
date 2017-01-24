@@ -15,7 +15,7 @@ TODO:
 
 """
 import cv2
-
+import numpy as np
 
 class EventFinder(object):
     """
@@ -103,6 +103,9 @@ class EventFinder(object):
             The previous image to compare against
         current_image : cv2.Image
             The current image to compare against
+
+        # TODO: the diff currently creates two keypoints for one image
+        if the last frame has a meteor event in it
         """
         # Our operations on the frame come here
         gray1 = cv2.cvtColor(previous_image, cv2.COLOR_BGR2GRAY)
@@ -113,7 +116,7 @@ class EventFinder(object):
         gray2 = cv2.GaussianBlur(gray2, (3, 3), 0)
 
         diff = cv2.absdiff(gray1, gray2)
-        thresh = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.threshold(diff, 35, 255, cv2.THRESH_BINARY)[1]
 
         # dilate the thresholded image to fill in holes, then find contours
         # on thresholded image
@@ -125,3 +128,45 @@ class EventFinder(object):
         self.draw_keypoints(im_with_keypoints, keypoints, (0, 0, 255))
 
         return keypoints, im_with_keypoints
+
+    def compile_motion_anomalies(self, image_list, intrinsic, distortion):
+        """
+            Takes a list of opencv image objects and returns a list of unique points of
+            where it saw the event.  Undistorts image by taking in the intrinsic matrix
+            and distortion coefficients.
+        """
+
+        # find motion anomalies for all of the images
+        totpts = []
+        for i in range(len(image_list) - 1):
+            keypts, imwithpts = self.find_motion_anomaly(image_list[i], image_list[i + 1])
+            totpts.extend(keypts)
+           
+        # remove all near duplicates
+        nodupes = []
+        nodupes.append(totpts[0].pt)
+        for i in totpts:
+            isIn = False
+            for j in nodupes:
+                if False not in np.isclose(j, i.pt):
+                    isIn = True
+            if isIn == False:
+                nodupes.append(i.pt)
+
+        # convert to nested matrix
+        nested = np.zeros((len(nodupes), 1, 2))
+        for i in xrange(len(nodupes)):
+            nested[i][0] = nodupes[i]
+
+        # undistort points
+        toUndistort = nested
+        undistorted = cv2.undistortPoints(toUndistort, intrinsic, distortion)
+
+        # find average center of points
+        avg = np.matrix([0., 0.])
+        for i in undistorted:
+            avg += i[0]
+
+        avg /= len(undistorted) 
+
+        return undistorted, avg

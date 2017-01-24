@@ -33,3 +33,4 @@ TODO:
 - server.py - a poor attempt at getting a live interactive server to work with the MeteorTracker.py code.  It needs to be redone at some point.
 - skew line measurement between events from separate cameras
 - multiple image sequence line drawing and correlation for triangulation
+- we pass events around as dictionaries, create a class that encapsulates this information

@@ -111,8 +111,6 @@ def matchMeteorEvents(sectionedEvents):
             section.append(evt)
 
     return coincidentEvents
-    
-
 
 
 

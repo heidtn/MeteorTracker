@@ -13,18 +13,15 @@ def test_ray_finder():
   images = [cv2.imread(im) for im in imageFiles]
 
   height, width, _ = images[0].shape
-  print height, width
 
   dist = np.matrix([0., 0., 0., 0., 0.])
   intrinsic = np.matrix([[1500, 0, width/2.],[0, 1500, height/2.],[0, 0, 1]])
 
   pts, avg = eventFinder.compile_motion_anomalies(images, intrinsic, dist)
 
-  print pts, avg
 
   avg_ret = np.matrix([avg[0, 0], avg[0, 1], 1.]).T
   imSpace = intrinsic*avg_ret
-  print imSpace
 
   distance = np.sqrt((imSpace[0] - 980.2)**2 + (imSpace[1] - 508.8)**2)
 

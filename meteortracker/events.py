@@ -1,8 +1,9 @@
 import numpy as np
 import cv2
 import vector_calcs
-import event_finder
+import find_events
 
+import datetime
 """
 @author(s): Nathan Heidt
 
@@ -16,7 +17,7 @@ CHANGELOG:
     -
 """
 
-class Event(object):
+class Event():
   def __init__(self, evt):
     """
       This takes a dict of all the necessary event parameters
@@ -27,7 +28,9 @@ class Event(object):
     self.current_image = evt['current_image']
     self.previous_image = evt['previous_image']
 
-    self.date = evt['date']
+    self.date = datetime.datetime.strptime(evt['date'],
+                                           "%Y-%m-%dT%H:%M:%S.%f"
+                                          )
 
     self.latitude = evt['latitude']
     self.longitude = evt['longitude']
@@ -36,22 +39,28 @@ class Event(object):
     self.pitch = evt['pitch']
     self.yaw  = evt['yaw']
 
-    self.intrinsic_matrix = np.matrix(evt['intrinsic_matrix']).reshape((3, 3))
+    self.intrinsic_matrix = np.matrix(evt['intrinsic_matrix'].strip("'").split(), 
+                                      dtype=np.float32).reshape((3, 3))
+    
+
     self.distortion_coeff = np.matrix(evt['distortion_coefficient'])
 
     self.user_key = evt['user_key']
 
-    #any internal calculations done after this line
-    self.pos = vector_calcs.get_earth_matpos(self)
-
+  #in case we change latitude/longitude pos should recalculate
+  #this is mostly for testing
+  @property
+  def pos(self):
+    pos, _ = vector_calcs.get_earth_matpos(self)
+    return pos
 
   def get_world_homography(self):
     pos, H = vector_calcs.get_earth_matpos(self)
     return H
 
-  def get_cam_homography(self):
+  def get_cam_world_homography(self):
     worldH = self.get_world_homography()
-    return vector_calcs.get_cam_matpos(worldH, self)
+    return worldH*vector_calcs.get_cam_matpos(worldH, self)
 
   def get_evt_vector(self, unitVec):
     """
@@ -59,18 +68,30 @@ class Event(object):
       a world point where the event was seen
     """
 
-    camH = self.get_cam_homography()
+    camH = self.get_cam_world_homography()
     #convert to homogenous coordinates
-    homeVec = np.matrix([unitVec[0], unitVec[1], 1.]).T
+    #we're cheating a litle bit here by switching x and y axis.  In our world
+    #the camera's 0 position is oriented north parallel to the ground with x
+    #being left/right and y being up/down  However, our cam_world_homography is 
+    #oriented with x being up/down and y being left/right.  Flipping them solves this
+    # without another homography to confuse people
+    homeVec = np.matrix([unitVec[1], unitVec[0], unitVec[2], 1.]).T
 
     worldPoint = camH*homeVec
 
     return worldPoint
 
+  def __repr__(self):
+    s = "{\n"
+    for key, item in self.__dict__.iteritems():
+      if key == 'evt_dict':
+        continue
+      s += "\t" + key + ": " + str(item) + "\n"
+    s += "}\n"
+    return s
 
 
-
-class Events(object):
+class Events():
   def __init__(self, evts):
     """
       This holds multiple Event types that are all different frames of the same meteor
@@ -98,7 +119,7 @@ class Events(object):
     self.yaw  = evts[0].yaw
 
     self.intrinsic_matrix = evts[0].intrinsic_matrix
-    self.distortion_coeff = evts[0].distortion_coefficient
+    self.distortion_coefficient = evts[0].distortion_coefficient
 
     self.user_key = evts[0].user_key
 
@@ -106,12 +127,12 @@ class Events(object):
 
     self.camH = evts[0].get_cam_homography()
 
-  def get_events_avg_point(self):
+  def get_events_evt_point(self):
     """
       get the average point in world coordinates of a meteor event as a unit
       vector in world space
     """
-    eventFinder = event_finder.EventFinder()
+    eventFinder = find_events.EventFinder()
     pts, avg = eventFinder.compile_motion_anomalies(self.images, 
                                                     self.intrinsic_matrix, 
                                                     self.distortion_coefficient

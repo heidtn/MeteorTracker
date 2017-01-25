@@ -3,6 +3,12 @@ import datetime
 import math
 import triangulate_events
 
+import sys
+sys.path.append('../')
+import events
+
+import settings
+
 """
 @author(s): Nathan Heidt
 
@@ -16,7 +22,7 @@ CHANGELOG:
     -
 """
 
-databasePath = '../database/local.db'
+databasePath = settings.databasePath
 dbTable = 'events'
 
 # Max delay (seconds) between meteor events before we section them
@@ -50,19 +56,19 @@ def compareEvents(evt1, evt2):
     firstEvt2 = evt2[0]
 
     # check time first
-    current_date = firstEvt1['date'] #time of this events first evt
-    most_recent_date = firstEvt2['date']
+    current_date = firstEvt1.date #time of this events first evt
+    most_recent_date = firstEvt2.date
 
     if (current_date - most_recent_date).total_seconds() > maxTimeBetweenSamples:
         return False
 
-
+    #TODO: encapsulate distance checks in the event class
     # check distance between users
-    user1lat = firstEvt1['latitude']
-    user1lon = firstEvt1['longitude']
+    user1lat = firstEvt1.latitude
+    user1lon = firstEvt1.longitude
 
-    user2lat = firstEvt2['latitude']
-    user2lon = firstEvt2['longitude']
+    user2lat = firstEvt2.latitude
+    user2lon = firstEvt2.longitude
 
     if distanceBetweenCoords(user1lat, user1lon, user2lat, user2lon) > maxDistance:
         return False
@@ -96,19 +102,22 @@ def matchMeteorEvents(sectionedEvents):
             unrolledEvents.append(evt)
 
     #now sort by time of the first event
-    sortedEvents = sorted(unrolledEvents, key=lambda x: x[0]['date'])
+    #TODO, maybe average the times then sort by that average instead
+    sortedEvents = sorted(unrolledEvents, key=lambda x: x[0].date)
 
     #compile into sections based on checks
     coincidentEvents = []
     section = []
     for evt in sortedEvents:
         if(len(section) > 0):
-            if compareEvents(evt, section[0]) == False
-                sectionedEvents.append(section)
+            if compareEvents(evt, section[0]) == False:
+                coincidentEvents.append(section)
                 section = []
             section.append(evt)
         else:
             section.append(evt)
+    if len(section) > 0:
+        coincidentEvents.append(section)
 
     return coincidentEvents
 
@@ -141,23 +150,18 @@ def sectionMeteorEvents(meteorEvents):
     
     """
 
-    # Convert the date from string format to datetime format
-    for i in range(len(meteorEvents)):
-        meteorEvents[i]['date'] = datetime.datetime.strptime(
-                                                meteorEvents[i]['date'],
-                                                "%Y-%m-%dT%H:%M:%S.%f"
-                                            )
+    # TODO: maybe this functionality can be in the Events class instead
 
     # Create a dictionary where the key is the user_key and the value is a
     # list of that users events
     user_events = {}
     for evt in meteorEvents:
-        user_events.setdefault(evt['user_key'], [])
-        user_events[evt['user_key']].append(evt)
+        user_events.setdefault(evt.user_key, [])
+        user_events[evt.user_key].append(evt)
     
     # Sort each users events by time
     for key in user_events:
-        user_events[key] = sorted(user_events[key], key=lambda k: k['date'])
+        user_events[key] = sorted(user_events[key], key=lambda k: k.date)
 
 
     # Here we go through the meteor events, and if there is a sufficiently
@@ -169,14 +173,16 @@ def sectionMeteorEvents(meteorEvents):
         section = []
         for evt in user_events[key]:
             if(len(section) > 0):
-                current_date = evt['date']
-                most_recent_date = section[-1]['date']
+                current_date = evt.date
+                most_recent_date = section[-1].date
                 if (current_date - most_recent_date).total_seconds() > maxDelay:
                     sectionedEvents.append(section)
                     section = []
                 section.append(evt)
             else:
                 section.append(evt)
+        if len(section) > 0:
+            sectionedEvents.append(section)
         user_events[key] = sectionedEvents
 
     # TODO: do the same as above, but with distance
@@ -219,7 +225,7 @@ def skewLineDistance(evt1, evt2):
     """
     pass
 
-def dictFactory(cursor, row):
+def eventFactory(cursor, row):
     """
     This is a helper function to create a dictionary using the column names
     from the database as the keys
@@ -230,7 +236,8 @@ def dictFactory(cursor, row):
         d[col[0]] = row[idx]
     
     #fill an Event type with the dict here
-    return d
+    evt = events.Event(d)
+    return evt
 
 
 def getAllEvents():
@@ -242,7 +249,7 @@ def getAllEvents():
     events = []
     print("Fetching database tables")
     conn = sqlite3.connect(databasePath)
-    conn.row_factory = dictFactory
+    conn.row_factory = eventFactory
     c = conn.cursor()
     for row in c.execute("SELECT * FROM %s" % dbTable):
         events.append(row)

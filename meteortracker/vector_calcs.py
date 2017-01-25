@@ -7,7 +7,7 @@ This is used to transform vectirs from earth space to camera space to ...space..
 The goal is to use the vectors to calculate interesections and intersections probabilities
 
 in terms of coordinates:
-  Z origin: points directly north
+  Z origin: points towards north pole
   X origin: points towards 0 degrees longitude, 0 degrees latitude
   Y origin: points towards +90 degrees longitude, 0 degrees latitude
 
@@ -81,8 +81,8 @@ def get_earth_matpos(evt):
     in and out.  Also returns the transform from earth center to the camera.
   """
 
-  latitude = np.deg2rad(-evt['latitude'])
-  longitude = np.deg2rad(evt['longitude'])
+  latitude = np.deg2rad(-evt.latitude)
+  longitude = np.deg2rad(evt.longitude)
 
   Rz = get_Rz(longitude)
   Ry = get_Ry(latitude)
@@ -103,22 +103,24 @@ def get_earth_matpos(evt):
 def get_cam_matpos(world_homography, evt):
   """
     takes the world_homography from get_earth_matpos and the event with the cameras
-    roll, pitch, and yaw and returns a homography for the camera direction
+    roll, pitch, and yaw and returns a homography for the camera direction.
+
+    Camera points out alon the Z axis
 
 
   """
   # roll around X, left/right of camera
-  roll = np.deg2rad(evt['roll'])
+  roll = np.deg2rad(evt.roll)
   # pitch around Y, in/out of camera
-  pitch = np.deg2rad(evt['pitch'])
+  pitch = np.deg2rad(evt.pitch)
   # yaw around Z, up down of camera
-  yaw = np.deg2rad(evt['yaw'])
+  yaw = np.deg2rad(evt.yaw)
 
-  Rx = get_Rx(roll)
+  Rx = get_Rx(yaw)
   Ry = get_Ry(pitch)
-  Rz = get_Rz(yaw)
+  Rz = get_Rz(roll)
 
-  camera_homography = Rz*Rx*Ry
+  camera_homography = Rx*Ry*Rz
 
   return camera_homography
 
@@ -160,12 +162,10 @@ def get_intersection(cam1pos, cam1evt, cam2pos, cam2evt):
   A = np.array(A.flatten())[0]
   B = np.array(B.flatten())[0]
 
-  print repr(A), repr(B)
 
   c = B - A
 
-  A = np.array(a.T[0])
-
+  
   D = A + a*(-(a.dot(b))*(b.dot(c)) + (a.dot(c))*(b.dot(b)))/ \
             ( (a.dot(a))*(b.dot(b)) - (a.dot(b))*(a.dot(b)))
 

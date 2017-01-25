@@ -133,7 +133,7 @@ class EventFinder(object):
         """
             Takes a list of opencv image objects and returns a list of unique points of
             where it saw the event.  Undistorts image by taking in the intrinsic matrix
-            and distortion coefficients.
+            and distortion coefficients.  Returns with -x/+x left->right -y/+y bottom->top
         """
 
         # find motion anomalies for all of the images

@@ -217,6 +217,7 @@ def skewLineDistance(evt1, evt2):
     """
     given two events compute the skew line distance between them
     """
+    pass
 
 def dictFactory(cursor, row):
     """
@@ -227,6 +228,8 @@ def dictFactory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
+    
+    #fill an Event type with the dict here
     return d
 
 

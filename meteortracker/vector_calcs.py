@@ -120,6 +120,8 @@ def get_cam_matpos(world_homography, evt):
 
   camera_homography = Rz*Rx*Ry
 
+  return camera_homography
+
 def get_event_pos(cameraHomography, eventHomography):
   """
     Return a second point in world space in which a meteor event was seen
@@ -171,11 +173,6 @@ def get_intersection(cam1pos, cam1evt, cam2pos, cam2evt):
             ( (a.dot(a))*(b.dot(b)) - (a.dot(b))*(a.dot(b)))
 
   return D, E
-
-
-  
-
-
 
 
 

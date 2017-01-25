@@ -4,6 +4,18 @@ import cv2
 
 from .. import find_events
 
+"""
+@author(s): Nathan Heidt
+
+This handles single and multiview triangulation of events
+
+TODO:
+    - 
+
+CHANGELOG:
+    -
+"""
+
 class Triangulator(object):
 	def __init__(self, evtslist):
 		"""
@@ -62,7 +74,6 @@ def average_ray(evt1, evt2):
 
 	dist1 = np.matrix(evt1['distortion_coefficient'])
 	dist2 = np.matrix(evt2['distortion_coefficient'])
-
 
 	pts, avg1 = eventFinder.compile_motion_anomalies(ims1, intrinsic1, dist1)
 	pts, avg2 = eventFinder.compile_motion_anomalies(ims2, intrinsic2, dist2)

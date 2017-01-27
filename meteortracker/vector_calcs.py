@@ -174,6 +174,11 @@ def get_intersection(cam1pos, cam1evt, cam2pos, cam2evt):
 
   return D, E
 
+def get_distance(pt1, pt2):
+  """
+    takes 2 points in standard coordinates and returns their Euclidean distance
+  """
+  return np.sqrt(np.sum((pt2 - pt1)**2))
 
 
 def main():

@@ -41,9 +41,13 @@ def main():
     sectionedEvents = sectionMeteorEvents(meteorEvents)
     matchedEvents = matchMeteorEvents(sectionedEvents)
 
-    for event in matchedEvents:
-        if(len(event) == 2):
-            triangulator = triangulate_events.Triangulator(event[0], event[1])
+    triangulators = []
+    for eventSet in matchedEvents:
+        triangulator = triangulate_events.Triangulator(eventSet)
+        triangulators.append(triangulator)
+
+    for triangulator in triangulators:
+        print "meteor seen at: ", triangulator.closest_intersection()
 
 
 def compareEvents(evt1, evt2):

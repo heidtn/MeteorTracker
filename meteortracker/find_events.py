@@ -136,6 +136,8 @@ class EventFinder(object):
             and distortion coefficients.  Returns with -x/+x left->right -y/+y bottom->top
         """
 
+        #TODO: match times up to images to preserve timing for several frames
+
         # find motion anomalies for all of the images
         totpts = []
         for i in range(len(image_list) - 1):
